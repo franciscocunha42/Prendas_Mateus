@@ -1,0 +1,30 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-body: "Quicksand", system-ui, sans-serif;
+  --font-display: "Quicksand", Georgia, serif;
+}
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+}
+
+body {
+  background:
+    radial-gradient(1200px 600px at 10% -10%, #F4DDE6 0%, rgba(244, 221, 230, 0) 55%),
+    radial-gradient(1000px 600px at 100% 0%, #CFE6F0 0%, rgba(207, 230, 240, 0) 50%),
+    radial-gradient(900px 700px at 50% 120%, #D6EBDD 0%, rgba(214, 235, 221, 0) 55%),
+    #FBF7F0;
+  background-attachment: fixed;
+  color: #5B5550;
+}
+
+/* Suaviza o foco para acessibilidade mantendo o ar pastel */
+*:focus-visible {
+  outline: 3px solid #9DC9DD;
+  outline-offset: 2px;
+}
