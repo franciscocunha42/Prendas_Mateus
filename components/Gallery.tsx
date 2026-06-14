@@ -1,8 +1,8 @@
 import { siteConfig } from "@/lib/site-config";
 
 export default function Gallery() {
-  const images = siteConfig.galleryImages;
-  if (!images || images.length === 0) return null;
+  const images: string[] = [...siteConfig.galleryImages];
+  if (images.length === 0) return null;
 
   return (
     <section className="mx-auto mb-14 max-w-5xl px-6">
