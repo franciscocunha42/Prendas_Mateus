@@ -7,7 +7,9 @@ export type ReservationStatus = "reserved" | "bought";
 export type PaymentMethod = "store" | "transfer";
 
 export type Reservation = {
+  id: number;
   item_id: string;
+  quantity: number;
   status: ReservationStatus;
   reserver_name: string;
   message: string | null;
@@ -18,6 +20,7 @@ export type Reservation = {
 
 type ReservationInsert = {
   item_id: string;
+  quantity?: number;
   status: ReservationStatus;
   reserver_name: string;
   message?: string | null;
@@ -62,14 +65,29 @@ export function getSupabase(): SupabaseClient<Database> {
   return cached;
 }
 
-// Lê todas as reservas e devolve um mapa item_id -> reserva.
-export async function getReservationsMap(): Promise<Record<string, Reservation>> {
+// Lê todas as reservas e agrupa-as por item: item_id -> lista de contribuições.
+// Cada item pode ter várias linhas (ex.: roupa, em que diferentes pessoas
+// reservam/compram algumas unidades cada).
+export async function getReservationsByItem(): Promise<
+  Record<string, Reservation[]>
+> {
   const supabase = getSupabase();
   const { data, error } = await supabase.from("reservations").select("*");
   if (error) throw error;
-  const map: Record<string, Reservation> = {};
+  const map: Record<string, Reservation[]> = {};
   for (const row of (data ?? []) as Reservation[]) {
-    map[row.item_id] = row;
+    (map[row.item_id] ??= []).push(row);
   }
   return map;
+}
+
+// Soma as quantidades já reservadas/compradas para um item.
+export function summarize(rows: Reservation[] = []) {
+  let reservedQty = 0;
+  let boughtQty = 0;
+  for (const r of rows) {
+    if (r.status === "bought") boughtQty += r.quantity;
+    else reservedQty += r.quantity;
+  }
+  return { reservedQty, boughtQty, takenQty: reservedQty + boughtQty };
 }

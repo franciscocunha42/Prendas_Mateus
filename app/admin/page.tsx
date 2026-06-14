@@ -1,7 +1,11 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { allItems } from "@/lib/items";
-import { getReservationsMap, type Reservation } from "@/lib/supabase";
+import {
+  getReservationsByItem,
+  summarize,
+  type Reservation,
+} from "@/lib/supabase";
 
 export const dynamic = "force-dynamic";
 
@@ -45,19 +49,32 @@ export default async function AdminPage({
     return <LoginForm error={searchParams.erro === "1"} />;
   }
 
-  let reservations: Record<string, Reservation> = {};
+  let reservations: Record<string, Reservation[]> = {};
   let dbError = false;
   try {
-    reservations = await getReservationsMap();
+    reservations = await getReservationsByItem();
   } catch (e) {
     console.error(e);
     dbError = true;
   }
 
-  const reserved = allItems
-    .map((item) => ({ item, r: reservations[item.id] }))
-    .filter((x) => x.r);
-  const available = allItems.filter((item) => !reservations[item.id]);
+  // Lista plana de contribuições (uma linha por reserva/compra), com o item.
+  const contributions = allItems
+    .flatMap((item) =>
+      (reservations[item.id] ?? [])
+        .slice()
+        .sort((a, b) => a.created_at.localeCompare(b.created_at))
+        .map((r) => ({ item, r }))
+    );
+
+  // Itens em que ainda faltam unidades.
+  const available = allItems
+    .map((item) => {
+      const target = item.quantity ?? 1;
+      const { takenQty } = summarize(reservations[item.id]);
+      return { item, target, remaining: Math.max(0, target - takenQty) };
+    })
+    .filter((x) => x.remaining > 0);
 
   return (
     <main className="mx-auto max-w-4xl px-6 py-12">
@@ -84,13 +101,14 @@ export default async function AdminPage({
       )}
 
       <h2 className="mb-3 font-display text-xl font-700 text-ink">
-        Presentes com atividade ({reserved.length})
+        Reservas e compras ({contributions.length})
       </h2>
       <div className="mb-10 overflow-hidden rounded-xl2 border border-white/60 bg-white/70 shadow-soft">
         <table className="w-full text-left text-sm">
           <thead className="bg-sky/50 text-ink">
             <tr>
               <th className="px-4 py-3">Presente</th>
+              <th className="px-4 py-3">Qtd.</th>
               <th className="px-4 py-3">Estado</th>
               <th className="px-4 py-3">Nome</th>
               <th className="px-4 py-3">Como</th>
@@ -98,30 +116,29 @@ export default async function AdminPage({
             </tr>
           </thead>
           <tbody>
-            {reserved.length === 0 && (
+            {contributions.length === 0 && (
               <tr>
-                <td className="px-4 py-4 text-inksoft" colSpan={5}>
+                <td className="px-4 py-4 text-inksoft" colSpan={6}>
                   Ainda não há reservas.
                 </td>
               </tr>
             )}
-            {reserved.map(({ item, r }) => (
-              <tr key={item.id} className="border-t border-black/5 align-top">
+            {contributions.map(({ item, r }) => (
+              <tr key={r.id} className="border-t border-black/5 align-top">
                 <td className="px-4 py-3 text-ink">{item.name}</td>
+                <td className="px-4 py-3 text-ink">{r.quantity}</td>
                 <td className="px-4 py-3">
-                  {r!.status === "bought" ? "Comprado ✓" : "Reservado"}
+                  {r.status === "bought" ? "Comprado ✓" : "Reservado"}
                 </td>
-                <td className="px-4 py-3 text-ink">{r!.reserver_name}</td>
+                <td className="px-4 py-3 text-ink">{r.reserver_name}</td>
                 <td className="px-4 py-3 text-inksoft">
-                  {r!.payment_method === "store"
+                  {r.payment_method === "store"
                     ? "Loja"
-                    : r!.payment_method === "transfer"
+                    : r.payment_method === "transfer"
                     ? "Transferência"
                     : "—"}
                 </td>
-                <td className="px-4 py-3 text-inksoft">
-                  {r!.message || "—"}
-                </td>
+                <td className="px-4 py-3 text-inksoft">{r.message || "—"}</td>
               </tr>
             ))}
           </tbody>
@@ -129,11 +146,14 @@ export default async function AdminPage({
       </div>
 
       <h2 className="mb-3 font-display text-xl font-700 text-ink">
-        Ainda disponíveis ({available.length})
+        Ainda por garantir ({available.length})
       </h2>
       <ul className="list-inside list-disc text-inksoft">
-        {available.map((item) => (
-          <li key={item.id}>{item.name}</li>
+        {available.map(({ item, target, remaining }) => (
+          <li key={item.id}>
+            {item.name}
+            {target > 1 ? ` — faltam ${remaining} de ${target}` : ""}
+          </li>
         ))}
       </ul>
     </main>

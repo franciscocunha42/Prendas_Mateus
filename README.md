@@ -34,8 +34,13 @@ Tudo o que é texto e conteúdo está em ficheiros fáceis de mudar:
 2. No projeto, abre **SQL Editor** e corre este SQL:
 
    ```sql
+   -- Se já tinhas criado uma versão antiga da tabela, apaga-a primeiro:
+   -- drop table if exists reservations;
+
    create table if not exists reservations (
-     item_id        text primary key,
+     id             bigint generated always as identity primary key,
+     item_id        text not null,
+     quantity       integer not null default 1,
      status         text not null check (status in ('reserved','bought')),
      reserver_name  text not null,
      message        text,
@@ -43,7 +48,14 @@ Tudo o que é texto e conteúdo está em ficheiros fáceis de mudar:
      created_at     timestamptz not null default now(),
      updated_at     timestamptz not null default now()
    );
+   create index if not exists reservations_item_id_idx on reservations (item_id);
    ```
+
+   > Cada presente pode ter várias linhas: nos itens de roupa (ex.: bodies),
+   > diferentes pessoas podem reservar/comprar algumas unidades cada, e a coluna
+   > `quantity` guarda quantas. **Se já tinhas criado a tabela antiga** (com
+   > `item_id` como chave primária), corre primeiro a linha `drop table` em
+   > comentário acima.
 
 3. Vai a **Project Settings → API** e copia:
    - **Project URL** → `SUPABASE_URL`

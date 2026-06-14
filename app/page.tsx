@@ -2,17 +2,17 @@ import Hero from "@/components/Hero";
 import Gallery from "@/components/Gallery";
 import CategorySection from "@/components/CategorySection";
 import { categories } from "@/lib/items";
-import { getReservationsMap, type Reservation } from "@/lib/supabase";
+import { getReservationsByItem, type Reservation } from "@/lib/supabase";
 
 // A página depende do estado das reservas, por isso é sempre renderizada a pedido.
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  let reservations: Record<string, Reservation> = {};
+  let reservations: Record<string, Reservation[]> = {};
   let dbError = false;
 
   try {
-    reservations = await getReservationsMap();
+    reservations = await getReservationsByItem();
   } catch (e) {
     console.error("Não foi possível ler as reservas:", e);
     dbError = true;

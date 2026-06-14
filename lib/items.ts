@@ -6,6 +6,9 @@
 //    depois (ex.: "39,99 €").
 //  - "buyLink": link da loja onde se pode comprar. Deixar "" se ainda não houver.
 //  - "note": observação opcional (ex.: cor, tamanho, modelo preferido).
+//  - "quantity": quantidade necessária. Se for maior que 1 (ex.: roupa), as
+//    pessoas podem reservar/comprar só algumas unidades (ex.: 2 de 8) e as
+//    restantes continuam disponíveis. Se não for indicado, conta como 1 unidade.
 //  - NÃO mudem o "id" depois do site estar online — é o que liga cada item às
 //    reservas guardadas na base de dados.
 
@@ -17,6 +20,7 @@ export type Item = {
   price: string;
   buyLink: string;
   note?: string;
+  quantity?: number;
 };
 
 export type Category = {
@@ -71,13 +75,13 @@ export const categories: Category[] = [
     title: "Roupa & têxteis essenciais",
     emoji: "👶",
     items: [
-      { id: "e1", name: "6–8 bodies de manga comprida", price: "", buyLink: "" },
-      { id: "e2", name: "6–8 babygrows / pijamas com pés", price: "", buyLink: "" },
-      { id: "e3", name: "2–3 casacos ou camadas quentes", price: "", buyLink: "" },
-      { id: "e4", name: "4–6 pares de meias", price: "", buyLink: "" },
-      { id: "e5", name: "2 gorros de recém-nascido", price: "", buyLink: "" },
-      { id: "e6", name: "1 gorro quente de exterior", price: "", buyLink: "" },
-      { id: "e7", name: "8–12 fraldas de pano / panos de arroto", price: "", buyLink: "" },
+      { id: "e1", name: "Bodies de manga comprida", price: "", buyLink: "", quantity: 8 },
+      { id: "e2", name: "Babygrows / pijamas com pés", price: "", buyLink: "", quantity: 8 },
+      { id: "e3", name: "Casacos ou camadas quentes", price: "", buyLink: "", quantity: 3 },
+      { id: "e4", name: "Pares de meias", price: "", buyLink: "", quantity: 6 },
+      { id: "e5", name: "Gorros de recém-nascido", price: "", buyLink: "", quantity: 2 },
+      { id: "e6", name: "Gorro quente de exterior", price: "", buyLink: "" },
+      { id: "e7", name: "Fraldas de pano / panos de arroto", price: "", buyLink: "", quantity: 12 },
     ],
   },
 ];

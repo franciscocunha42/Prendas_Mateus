@@ -1,19 +1,13 @@
 import type { Category } from "@/lib/items";
-import type { Reservation } from "@/lib/supabase";
-import ItemCard, { ItemStatus } from "./ItemCard";
-
-function statusFor(reservation: Reservation | undefined): ItemStatus {
-  if (!reservation) return "available";
-  if (reservation.status === "bought") return "bought";
-  return "reserved";
-}
+import { summarize, type Reservation } from "@/lib/supabase";
+import ItemCard from "./ItemCard";
 
 export default function CategorySection({
   category,
   reservations,
 }: {
   category: Category;
-  reservations: Record<string, Reservation>;
+  reservations: Record<string, Reservation[]>;
 }) {
   return (
     <section className="mb-12">
@@ -22,17 +16,27 @@ export default function CategorySection({
         {category.title}
       </h2>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {category.items.map((item) => (
-          <ItemCard
-            key={item.id}
-            id={item.id}
-            name={item.name}
-            price={item.price}
-            buyLink={item.buyLink}
-            note={item.note}
-            status={statusFor(reservations[item.id])}
-          />
-        ))}
+        {category.items.map((item) => {
+          const target = item.quantity ?? 1;
+          const { reservedQty, boughtQty, takenQty } = summarize(
+            reservations[item.id]
+          );
+          const remaining = Math.max(0, target - takenQty);
+          return (
+            <ItemCard
+              key={item.id}
+              id={item.id}
+              name={item.name}
+              price={item.price}
+              buyLink={item.buyLink}
+              note={item.note}
+              target={target}
+              reservedQty={reservedQty}
+              boughtQty={boughtQty}
+              remaining={remaining}
+            />
+          );
+        })}
       </div>
     </section>
   );

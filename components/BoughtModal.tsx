@@ -1,20 +1,29 @@
 "use client";
 
 import { useState } from "react";
-import { ModalShell } from "./ReserveModal";
+import { ModalShell, QuantityField } from "./ReserveModal";
 import { siteConfig } from "@/lib/site-config";
 
 type Props = {
   itemId: string;
   itemName: string;
+  maxQuantity?: number;
   onClose: () => void;
   onDone: () => void;
 };
 
 type Method = "store" | "transfer";
 
-export default function BoughtModal({ itemId, itemName, onClose, onDone }: Props) {
+export default function BoughtModal({
+  itemId,
+  itemName,
+  maxQuantity = 1,
+  onClose,
+  onDone,
+}: Props) {
+  const isMulti = maxQuantity > 1;
   const [name, setName] = useState("");
+  const [quantity, setQuantity] = useState(1);
   const [message, setMessage] = useState("");
   const [method, setMethod] = useState<Method | null>(null);
   const [loading, setLoading] = useState(false);
@@ -39,6 +48,7 @@ export default function BoughtModal({ itemId, itemName, onClose, onDone }: Props
         body: JSON.stringify({
           itemId,
           name: name.trim(),
+          quantity,
           message: message.trim(),
           paymentMethod: method,
         }),
@@ -60,11 +70,20 @@ export default function BoughtModal({ itemId, itemName, onClose, onDone }: Props
     <ModalShell title="Já comprei este presente" onClose={onClose}>
       <p className="text-sm text-inksoft">
         Obrigado por ajudares com{" "}
-        <strong className="text-ink">{itemName}</strong>! 💛 Deixa o teu nome e,
-        se quiseres, uma mensagem para nós.
+        <strong className="text-ink">{itemName}</strong>! 💛{" "}
+        {isMulti && `Podes indicar quantas unidades compraste (faltam ${maxQuantity}). `}
+        Deixa o teu nome e, se quiseres, uma mensagem para nós.
       </p>
 
       <form onSubmit={submit} className="mt-5 space-y-4">
+        {isMulti && (
+          <QuantityField
+            value={quantity}
+            max={maxQuantity}
+            onChange={setQuantity}
+            accent="peach"
+          />
+        )}
         <label className="block">
           <span className="text-sm font-600 text-ink">O teu nome</span>
           <input

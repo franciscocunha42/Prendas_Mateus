@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
-import { getSupabase } from "@/lib/supabase";
+import { getSupabase, summarize, type Reservation } from "@/lib/supabase";
 import { findItem } from "@/lib/items";
 
 export async function POST(request: Request) {
-  let body: { itemId?: string; name?: string };
+  let body: { itemId?: string; name?: string; quantity?: number };
   try {
     body = await request.json();
   } catch {
@@ -13,6 +13,7 @@ export async function POST(request: Request) {
 
   const itemId = (body.itemId || "").trim();
   const name = (body.name || "").trim();
+  const quantity = Math.max(1, Math.floor(Number(body.quantity) || 1));
 
   if (!itemId || !name) {
     return NextResponse.json(
@@ -20,7 +21,8 @@ export async function POST(request: Request) {
       { status: 400 }
     );
   }
-  if (!findItem(itemId)) {
+  const item = findItem(itemId);
+  if (!item) {
     return NextResponse.json({ error: "Item desconhecido." }, { status: 404 });
   }
 
@@ -34,22 +36,56 @@ export async function POST(request: Request) {
     );
   }
 
-  // Insert atómico: se já existir uma reserva para este item, a constraint de
-  // item_id único faz falhar — evita reservas duplicadas em simultâneo.
+  const target = item.quantity ?? 1;
+
+  // Verifica quanto já está reservado/comprado antes de aceitar a reserva.
+  const { data: rows, error: readError } = await supabase
+    .from("reservations")
+    .select("*")
+    .eq("item_id", itemId);
+
+  if (readError) {
+    console.error("Erro ao ler reservas:", readError);
+    const detail = (readError as { message?: string }).message;
+    return NextResponse.json(
+      {
+        error: detail
+          ? `Não foi possível reservar. (detalhe: ${detail})`
+          : "Não foi possível reservar. Tenta novamente.",
+      },
+      { status: 500 }
+    );
+  }
+
+  const { takenQty } = summarize((rows ?? []) as Reservation[]);
+  const remaining = target - takenQty;
+
+  if (remaining <= 0) {
+    return NextResponse.json(
+      {
+        error:
+          target > 1
+            ? "Já não faltam unidades deste presente."
+            : "Este presente já foi reservado por outra pessoa.",
+      },
+      { status: 409 }
+    );
+  }
+  if (quantity > remaining) {
+    return NextResponse.json(
+      { error: `Só faltam ${remaining} unidade(s) deste presente.` },
+      { status: 409 }
+    );
+  }
+
   const { error } = await supabase.from("reservations").insert({
     item_id: itemId,
+    quantity,
     status: "reserved",
     reserver_name: name,
   });
 
   if (error) {
-    // 23505 = unique_violation -> já estava reservado/comprado
-    if ((error as { code?: string }).code === "23505") {
-      return NextResponse.json(
-        { error: "Este presente já foi reservado por outra pessoa." },
-        { status: 409 }
-      );
-    }
     console.error("Erro ao reservar:", error);
     const detail = (error as { message?: string }).message;
     return NextResponse.json(
