@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 
 type Props = {
   itemId: string;
@@ -91,13 +92,29 @@ export function ModalShell({
   onClose: () => void;
   children: React.ReactNode;
 }) {
-  return (
+  // Só renderiza no cliente (o portal precisa de document) e bloqueia o scroll
+  // do fundo enquanto o modal está aberto.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previous;
+    };
+  }, []);
+
+  if (!mounted) return null;
+
+  // Renderizado num portal para document.body — assim o overlay cobre sempre a
+  // janela toda e nunca fica "preso" por um transform de um cartão ascendente.
+  return createPortal(
     <div
       className="fixed inset-0 z-50 flex items-end justify-center bg-ink/30 p-0 backdrop-blur-sm sm:items-center sm:p-4"
       onClick={onClose}
     >
       <div
-        className="w-full max-w-lg rounded-t-xl2 bg-cream p-6 shadow-soft sm:rounded-xl2"
+        className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-t-xl2 bg-cream p-6 shadow-soft sm:rounded-xl2"
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
@@ -114,6 +131,7 @@ export function ModalShell({
         </div>
         {children}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
