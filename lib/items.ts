@@ -33,7 +33,7 @@ export const categories: Category[] = [
     emoji: "🌙",
     items: [
       { id: "a1", name: "Berço de colo / next-to-me", price: "", buyLink: "" },
-      { id: "a2", name: "2–3 lençóis ajustáveis", price: "", buyLink: "" },
+      { id: "a2", name: "Set de 2 lençóis ajustáveis", price: "", buyLink: "https://www.babylux.nl/set-van-2-hoeslakens-voor-next-2-me-dream-chicco-panda.html" },
       { id: "a3", name: "2 sacos de dormir para bebé", price: "", buyLink: "" },
       { id: "a4", name: "Luz de presença com ruído branco", price: "", buyLink: "" },
     ],
