@@ -20,9 +20,9 @@ export default function Hero() {
 
   return (
     <header className="relative isolate min-h-screen overflow-hidden">
-      {/* Foto da barriga a cobrir o ecrã inteiro, como marca de água */}
+      {/* Foto da barriga inteira, centrada, como marca de água */}
       <div
-        className="pointer-events-none absolute inset-0 bg-cover bg-center bg-no-repeat opacity-40"
+        className="pointer-events-none absolute inset-0 bg-contain bg-center bg-no-repeat opacity-40"
         style={{ backgroundImage: "url('/hero.jpg')" }}
       />
       {/* Véu pastel suave para o texto continuar legível */}
