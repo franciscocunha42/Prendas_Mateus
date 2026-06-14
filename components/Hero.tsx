@@ -19,20 +19,16 @@ export default function Hero() {
   }, []);
 
   return (
-    <header className="relative isolate overflow-hidden">
-      {/* Foto da barriga como marca de água, na vertical */}
-      <div className="pointer-events-none absolute inset-0 flex justify-center">
-        <img
-          src="/hero.jpg"
-          alt=""
-          aria-hidden="true"
-          className="h-full w-auto max-w-none object-contain opacity-40"
-        />
-      </div>
+    <header className="relative isolate min-h-screen overflow-hidden">
+      {/* Foto da barriga a cobrir o ecrã inteiro, como marca de água */}
+      <div
+        className="pointer-events-none absolute inset-0 bg-cover bg-center bg-no-repeat opacity-40"
+        style={{ backgroundImage: "url('/hero.jpg')" }}
+      />
       {/* Véu pastel suave para o texto continuar legível */}
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-cream/50 via-cream/30 to-cream" />
 
-      <div className="relative mx-auto flex min-h-[85vh] max-w-3xl flex-col justify-center px-6 py-16 text-center">
+      <div className="relative mx-auto flex min-h-screen max-w-3xl flex-col justify-center px-6 py-16 text-center">
         <p className="mb-4 text-3xl">🍼💛</p>
         <h1 className="font-display text-4xl font-700 leading-tight text-ink sm:text-5xl">
           {pageTitle()}
