@@ -62,13 +62,8 @@ export const categories: Category[] = [
     emoji: "🧴",
     items: [
       { id: "d1", name: "Tapete de muda", price: "", buyLink: "" },
-      { id: "d2", name: "Fraldas", price: "", buyLink: "" },
-      { id: "d3", name: "Toalhitas ou discos de algodão", price: "", buyLink: "" },
-      { id: "d4", name: "Creme muda da fralda", price: "", buyLink: "" },
       { id: "d5", name: "Banheira ou apoio de banho", price: "", buyLink: "" },
       { id: "d6", name: "2 toalhas de bebé", price: "", buyLink: "" },
-      { id: "d7", name: "Termómetro", price: "", buyLink: "" },
-      { id: "d8", name: "Lima ou tesoura de unhas para bebé", price: "", buyLink: "" },
     ],
   },
   {
