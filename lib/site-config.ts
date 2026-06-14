@@ -9,6 +9,11 @@ export const siteConfig = {
   dueDateText: "5 de outubro de 2026",
   dueDateISO: "2026-10-05",
 
+  // Galeria de fotos mostrada antes da lista de presentes.
+  // Para adicionar mais fotos: põe os ficheiros na pasta "public/" e acrescenta
+  // aqui o caminho (ex.: "/foto2.jpg").
+  galleryImages: ["/hero.jpg"],
+
   // Email para onde são enviadas as notificações de "já comprei".
   // (Também definido em NOTIFICATION_EMAIL para o envio do email.)
   notificationEmail: "luciaefrancisco2025@gmail.com",

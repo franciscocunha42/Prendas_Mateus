@@ -1,4 +1,5 @@
 import Hero from "@/components/Hero";
+import Gallery from "@/components/Gallery";
 import CategorySection from "@/components/CategorySection";
 import { categories } from "@/lib/items";
 import { getReservationsMap, type Reservation } from "@/lib/supabase";
@@ -20,6 +21,8 @@ export default async function Home() {
   return (
     <main className="min-h-screen pb-24">
       <Hero />
+
+      <Gallery />
 
       <div className="mx-auto max-w-5xl px-6">
         {dbError && (

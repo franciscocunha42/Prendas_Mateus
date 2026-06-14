@@ -19,15 +19,8 @@ export default function Hero() {
   }, []);
 
   return (
-    <header className="px-6 pt-10 pb-6">
-      {/* Foto completa da barriga, nítida e centrada */}
-      <img
-        src="/hero.jpg"
-        alt="À espera do nosso bebé"
-        className="mx-auto max-h-[85vh] w-auto rounded-xl2 object-contain shadow-soft"
-      />
-
-      <div className="mx-auto mt-10 max-w-3xl text-center">
+    <header className="px-6 pt-16 pb-10">
+      <div className="mx-auto max-w-3xl text-center">
         <p className="mb-4 text-3xl">🍼💛</p>
         <h1 className="font-display text-4xl font-700 leading-tight text-ink sm:text-5xl">
           {pageTitle()}
