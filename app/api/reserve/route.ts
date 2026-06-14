@@ -51,8 +51,13 @@ export async function POST(request: Request) {
       );
     }
     console.error("Erro ao reservar:", error);
+    const detail = (error as { message?: string }).message;
     return NextResponse.json(
-      { error: "Não foi possível reservar. Tenta novamente." },
+      {
+        error: detail
+          ? `Não foi possível reservar. (detalhe: ${detail})`
+          : "Não foi possível reservar. Tenta novamente.",
+      },
       { status: 500 }
     );
   }

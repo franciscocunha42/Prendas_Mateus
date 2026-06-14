@@ -67,8 +67,13 @@ export async function POST(request: Request) {
 
   if (error) {
     console.error("Erro ao marcar como comprado:", error);
+    const detail = (error as { message?: string }).message;
     return NextResponse.json(
-      { error: "Não foi possível registar. Tenta novamente." },
+      {
+        error: detail
+          ? `Não foi possível registar. (detalhe: ${detail})`
+          : "Não foi possível registar. Tenta novamente.",
+      },
       { status: 500 }
     );
   }
